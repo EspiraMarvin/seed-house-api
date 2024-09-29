@@ -12,3 +12,43 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+
+model User {
+  id  Int    @id @default(autoincrement())
+  uuid   String  @default(uuid())  @unique
+  email  String?  @unique
+  firstName  String
+  lastName  String
+  phoneNumber  BigInt?
+  role  Role   @default(USER)
+  isActive  Boolean @default(true)
+
+  createdAt  DateTime @default(now())
+  updateAt  DateTime @updatedAt
+}
+
+model Seed {
+  id  Int     @id @default(autoincrement())
+  uuid   String  @default(uuid())  @unique
+  type String
+  name String
+  description String?
+  price Int @default(0)
+  stock Int  @default(0)
+  sku SKU @default(KGS)
+
+
+  createdAt  DateTime @default(now())
+  updateAt  DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum SKU {
+  GRAMS
+  KGS
+}
