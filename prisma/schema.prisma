@@ -23,6 +23,7 @@ model User {
   phoneNumber  BigInt?
   role  Role   @default(USER)
   isActive  Boolean @default(true)
+  password  String?
 
   createdAt  DateTime @default(now())
   updateAt  DateTime @updatedAt
