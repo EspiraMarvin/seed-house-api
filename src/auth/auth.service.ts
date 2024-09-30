@@ -1,16 +1,60 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from '../prisma/prisma.service';
+import { SignInDto, SignUpDto } from './dto';
+import { compare, hash } from 'bcryptjs';
+import { User } from '@prisma/client';
+import { deletePwdFromResponse } from 'src/utils/helpers';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private prisma: PrismaService,
     private jwtService: JwtService,
     private config: ConfigService,
   ) {}
 
-  async signIn(email: string, password: string): Promise<any> {}
+  /**
+   * sigin in user
+   * @param dto
+   * @returns
+   */
+  async signIn(dto: SignInDto): Promise<any> {
+    // find user by email
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: dto.email,
+      },
+    });
 
+    // if user doesnt exists throw exception
+    if (!user) throw new ForbiddenException('Credentials Incorrect');
+
+    // compare password
+    const pwdMatches = await compare(
+      dto.password ? dto.password.toString() : '',
+      user.password,
+    );
+
+    if (!pwdMatches) {
+      throw new ForbiddenException('Credentials Incorrect');
+    }
+
+    return this.signToken(user.id.toString(), user.email);
+  }
+
+  /**
+   * sign in token
+   * @param id
+   * @param email
+   * @returns
+   */
   async signToken(
     id: string,
     email: string,
@@ -27,5 +71,38 @@ export class AuthService {
     return {
       access_token: token,
     };
+  }
+
+  async signUp(dto: SignUpDto): Promise<User> {
+    // check if user exists
+    const exists = await this.prisma.user.findFirst({
+      where: {
+        email: dto.email,
+      },
+    });
+
+    if (exists)
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: `User already exists`,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+
+    // generate the password hash
+    const hashedPassword = await hash(dto.password.toString(), 10);
+    dto.password = hashedPassword;
+
+    const newUser = await this.prisma.user.create({
+      data: {
+        first_name: dto.first_name,
+        last_name: dto.last_name,
+        email: dto.email,
+        password: dto.password,
+      },
+    });
+
+    return deletePwdFromResponse(newUser);
   }
 }
