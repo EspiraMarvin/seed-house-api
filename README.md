@@ -58,6 +58,20 @@ $ yarn run test:e2e
 $ yarn run test:cov
 ```
 
+### local migrations
+
+```bash
+# create migration
+$ npx prisma migrate dev --name "migration-name"
+```
+
+### Generate 64 bytes and output base64 encoded
+
+```bash
+# create migration
+openssl rand -base64 64
+```
+
 ## Resources
 
 Check out a few resources that may come in handy when working with NestJS:
