@@ -1,6 +1,7 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signIn.dto';
+import { SignUpDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
@@ -8,12 +9,23 @@ export class AuthController {
 
   /** sign in */
   @HttpCode(HttpStatus.OK)
-  @Post('siginin')
+  @Post('signin')
   signin(@Body() body: SignInDto) {
     try {
-      return this.authService.signIn(body.email, body.password);
+      return this.authService.signIn({
+        email: body.email,
+        password: body.password,
+      });
     } catch (err) {
       throw new Error(err);
     }
+  }
+
+  /**
+   * sign up
+   */
+  @Post('signup') //status code 201
+  signup(@Body() dto: SignUpDto) {
+    return this.authService.signUp(dto);
   }
 }
