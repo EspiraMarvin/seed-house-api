@@ -30,8 +30,6 @@ export class CreateUserDto {
   @IsOptional()
   phone_number?: string;
 
-  @IsOptional()
-  @IsNotEmpty()
   @IsEnum(UserRole, {
     message: 'Role must be one of the following values: user, admin',
   })
