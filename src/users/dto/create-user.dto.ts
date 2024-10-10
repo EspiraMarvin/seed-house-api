@@ -33,7 +33,6 @@ export class CreateUserDto {
   @MinLength(5)
   password: string;
 
-  @IsOptional()
   @IsEnum(Role, {
     message: 'Role must be one of the following values: user or admin',
   })
