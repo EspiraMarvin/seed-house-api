@@ -17,26 +17,46 @@ export class OrderController {
 
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
-    return this.orderService.create(createOrderDto);
+    try {
+      return this.orderService.create(createOrderDto);
+    } catch (error) {
+      throw new error(error);
+    }
   }
 
   @Get()
   findAll() {
-    return this.orderService.findAll();
+    try {
+      return this.orderService.findAll();
+    } catch (error) {
+      throw new error(error);
+    }
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.orderService.findOne(+id);
+    try {
+      return this.orderService.findOne(id);
+    } catch (error) {
+      throw new error(error);
+    }
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.orderService.update(+id, updateOrderDto);
+    try {
+      return this.orderService.update(id, updateOrderDto);
+    } catch (error) {
+      throw new error(error);
+    }
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.orderService.remove(+id);
+    try {
+      return this.orderService.remove(id);
+    } catch (error) {
+      throw new error(error);
+    }
   }
 }
