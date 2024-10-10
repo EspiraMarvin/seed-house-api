@@ -6,6 +6,8 @@ import { ConfigModule } from '@nestjs/config';
 import { SeedsModule } from './seeds/seeds.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
+import { OrderModule } from './order/order.module';
+import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { AuthModule } from './auth/auth.module';
     UsersModule,
     SeedsModule,
     AuthModule,
+    OrderModule,
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
