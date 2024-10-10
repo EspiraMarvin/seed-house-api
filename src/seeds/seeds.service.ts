@@ -64,6 +64,16 @@ export class SeedsService {
     return seed;
   }
 
+  // Get seeds based on their type
+  async getAvailableSeedsByType(type) {
+    return this.prisma.seed.findMany({
+      where: {
+        type, // Filter by the seed type
+        stock: { gt: 0 }, // Only return seeds with stock > 0
+      },
+    });
+  }
+
   async findOne(id: string) {
     const seed = await this.prisma.seed.findFirst({
       where: { uuid: id },
