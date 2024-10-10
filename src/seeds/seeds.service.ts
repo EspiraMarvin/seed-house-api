@@ -1,26 +1,125 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateSeedDto } from './dto/create-seed.dto';
-import { UpdateSeedDto } from './dto/update-seed.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { SKU } from '@prisma/client';
 
 @Injectable()
 export class SeedsService {
-  create(createSeedDto: CreateSeedDto) {
-    return 'This action adds a new seed';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(dto: CreateSeedDto) {
+    const seedExists = await this.prisma.seed.findFirst({
+      where: {
+        name: dto.name,
+        type: dto.type,
+      },
+    });
+
+    console.log('seed Exists', seedExists);
+
+    if (seedExists) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: `Seed already exists`,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const newSeed = await this.prisma.seed.create({
+      data: {
+        name: dto.name,
+        type: dto.type,
+        description: dto.description,
+        price: dto.price,
+        sku: SKU[dto.sku],
+      },
+    });
+
+    return newSeed;
   }
 
-  findAll() {
-    return `This action returns all seeds`;
+  async findAll() {
+    return this.prisma.seed.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} seed`;
+  async findSeed(name, type) {
+    const seed = await this.prisma.seed.findFirst({
+      where: {
+        AND: [{ name: name }, { type: type }],
+      },
+    });
+
+    return seed;
   }
 
-  update(id: number, updateSeedDto: UpdateSeedDto) {
-    return `This action updates a #${id} seed`;
+  async findSeedType(type) {
+    const seed = await this.prisma.seed.findFirst({
+      where: {
+        AND: [{ type: type }],
+      },
+    });
+
+    return seed;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} seed`;
+  async findOne(id: string) {
+    const seed = await this.prisma.seed.findFirst({
+      where: { uuid: id },
+    });
+
+    if (!seed) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'seed not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return seed;
+  }
+
+  async update(id: string, data) {
+    const seed = await this.prisma.seed.findFirst({
+      where: { uuid: id },
+    });
+
+    if (!seed) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'seed not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const updatedSeed = this.prisma.seed.update({
+      where: { uuid: id },
+      data,
+    });
+
+    return updatedSeed;
+  }
+
+  async remove(id: string) {
+    const seed = await this.prisma.seed.findFirst({
+      where: { uuid: id },
+    });
+
+    if (!seed) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'seed not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return seed;
   }
 }
