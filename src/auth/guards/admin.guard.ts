@@ -42,6 +42,7 @@ export class AdminGuard implements CanActivate {
           HttpStatus.NOT_FOUND,
         );
 
+      // we check if user returned has a role of ADMIN, else if role is USER, throw UnauthorizedException
       if (user.role === 'USER') throw new UnauthorizedException();
 
       request['user'] = user;
