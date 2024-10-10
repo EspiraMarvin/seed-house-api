@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+// import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { generateRandomPassword } from 'src/utils/helpers';
 import { Prisma } from '@prisma/client';
@@ -32,23 +32,19 @@ export class UsersService {
     return `This action returns a #${id} user`;
   }
 
-  async update(id: number, data: UpdateUserDto) {
+  async update(id: number, data) {
     try {
-      const updatedUser = await this.prisma.user.update({
-        where: { id },
-        data: {
-          ...data, // Patch only the provided fields
-        },
+      return this.prisma.user.update({
+        where: { id }, // Update based on user ID
+        data, // Fields to update
       });
-
-      return updatedUser;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new NotFoundException(`Record with ID ${id} not found`);
         }
       }
-      throw error;
+      throw new error();
     }
   }
 
