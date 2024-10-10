@@ -13,6 +13,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
+enum SKU {
+  GRAMS
+  KGS
+}
+
+enum  SeedType {
+  TYPE_A
+  TYPE_B
+  TYPE_C 
+}
 
 model User {
   id  Int    @id @default(autoincrement())
@@ -25,8 +40,10 @@ model User {
   is_active  Boolean @default(true)
   password  String
 
+  orders  Order[] // a user can place multiple orders
+  
   created_at  DateTime @default(now())
-  update_at  DateTime @updatedAt
+  updated_at  DateTime @updatedAt
 }
 
 model Seed {
@@ -39,17 +56,38 @@ model Seed {
   stock Int  @default(0)
   sku SKU @default(KGS)
 
+  orders  Order[]  // seeds that have been ordered
 
   created_at  DateTime @default(now())
   update_at  DateTime @updatedAt
 }
 
-enum Role {
-  USER
-  ADMIN
+model Order {
+  id  Int     @id @default(autoincrement())
+  uuid   String  @default(uuid())  @unique
+  user_id String
+  seed_id String
+  quantity Float
+  status String @default("pending")  // pending, processing, failed, cancelled, completed
+  collection_date DateTime
+
+  user User @relation(fields: [user_id], references: [uuid])
+  seed Seed @relation(fields: [seed_id], references: [uuid])
+  transaction Transaction?  // order is linked to a transaction
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 }
 
-enum SKU {
-  GRAMS
-  KGS
+model Transaction {
+  id  Int     @id @default(autoincrement())
+  uuid   String  @default(uuid())  @unique
+  order_id String @unique
+  status String @default("processing")  // processing, failed, completed
+  amount Float
+
+  order Order @relation(fields: [order_id], references: [uuid])
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 }
