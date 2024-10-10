@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signIn.dto';
 import { SignUpDto } from './dto';
@@ -25,7 +32,7 @@ export class AuthController {
    * sign up
    */
   @Post('signup') //status code 201
-  signup(@Body() dto: SignUpDto) {
+  signup(@Body(new ValidationPipe()) dto: SignUpDto) {
     return this.authService.signUp(dto);
   }
 }

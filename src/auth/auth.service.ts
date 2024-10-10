@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { SignInDto, SignUpDto } from './dto';
 import { compare, hash } from 'bcryptjs';
-import { User } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 import { deletePwdFromResponse } from 'src/utils/helpers';
 
 @Injectable()
@@ -99,6 +99,7 @@ export class AuthService {
         first_name: dto.first_name,
         last_name: dto.last_name,
         email: dto.email,
+        role: Role[dto.role],
         password: dto.password,
       },
     });
