@@ -53,7 +53,7 @@ model Seed {
   name String
   description String?
   price Int @default(0)
-  stock Int  @default(0)
+  stock Int  @default(0) // the no of seeds available in stock
   sku SKU @default(KGS)
 
   orders  Order[]  // seeds that have been ordered
