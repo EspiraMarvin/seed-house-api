@@ -7,7 +7,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-export enum UserRole {
+export enum Role {
   USER = 'user',
   ADMIN = 'admin',
 }
@@ -30,8 +30,12 @@ export class CreateUserDto {
   @IsOptional()
   phone_number?: string;
 
-  @IsEnum(UserRole, {
-    message: 'Role must be one of the following values: user, admin',
+  @MinLength(5)
+  password: string;
+
+  @IsOptional()
+  @IsEnum(Role, {
+    message: 'Role must be one of the following values: user or admin',
   })
-  role: UserRole;
+  role: Role;
 }

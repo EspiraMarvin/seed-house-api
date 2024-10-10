@@ -1,54 +1,125 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-// import { UpdateUserDto } from './dto/update-user.dto';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { hash } from 'bcryptjs';
+import { CreateUserDto, Role } from './dto/create-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { generateRandomPassword } from 'src/utils/helpers';
-import { Prisma } from '@prisma/client';
+import {
+  deletePwdFromResponse,
+  generateRandomPassword,
+} from 'src/utils/helpers';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateUserDto) {
+    const userExists = await this.prisma.user.findFirst({
+      where: { email: dto.email },
+    });
+
+    if (userExists) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: `User with ${dto.email} email already exists`,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const randomPwd = generateRandomPassword();
+    // hash password
+    const hashedPassword = await hash(dto.password.toString(), 10);
+    dto.password = hashedPassword;
     const newUser = await this.prisma.user.create({
       data: {
         first_name: dto.first_name,
         last_name: dto.last_name,
         email: dto.email,
+        phone_number: dto.phone_number,
+        role: Role[dto.role],
         password: randomPwd,
       },
     });
 
+    const deletedUserPwd = deletePwdFromResponse(newUser);
+
     //TODO: SEND NEWLY CREATED USERS EMAIL/SMS  TO RESET PWDS
-    return newUser;
+    // return res;
+    return {
+      message: 'User created',
+      data: { user: deletedUserPwd, password: randomPwd },
+    };
   }
 
-  findAll() {
+  async findAll() {
     return this.prisma.user.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
+  // find one by uuid
+  async findOne(id: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { uuid: id },
+    });
 
-  async update(id: number, data) {
-    try {
-      return this.prisma.user.update({
-        where: { id }, // Update based on user ID
-        data, // Fields to update
-      });
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new NotFoundException(`Record with ID ${id} not found`);
-        }
-      }
-      throw new error();
+    if (!user) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'user not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
     }
+
+    return deletePwdFromResponse(user);
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} user`;
+  async update(id: string, data) {
+    const user = await this.prisma.user.findFirst({
+      where: { uuid: id },
+    });
+
+    if (!user) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'user not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const updatedUser = this.prisma.user.update({
+      where: { uuid: id }, // Update based on user ID
+      data, // Fields to update
+    });
+
+    return deletePwdFromResponse(updatedUser);
+  }
+
+  /**
+   * delete
+   * @param id
+   */
+  async remove(id: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { uuid: id },
+    });
+
+    if (!user) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'user not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const deleteUser = await this.prisma.user.delete({
+      where: { uuid: id },
+    });
+
+    return deletePwdFromResponse(deleteUser);
   }
 }
