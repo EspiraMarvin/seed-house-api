@@ -10,7 +10,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { SignInDto, SignUpDto } from './dto';
 import { compare, hash } from 'bcryptjs';
 import { Role, User } from '@prisma/client';
-import { deletePwdFromResponse } from 'src/utils/helpers';
+import { deletePwdFromResponse } from '../utils/helpers';
 
 @Injectable()
 export class AuthService {
