@@ -62,13 +62,17 @@ $ yarn run test:cov
 
 ```bash
 # create migration
+$ npx prisma generate
+
 $ npx prisma migrate dev --name "migration-name"
+
+i.e. npx prisma migrate dev --name "make-uuid-unique"
 ```
 
 ### Generate 64 bytes and output base64 encoded
 
 ```bash
-# create migration
+# generate JWT_SECRET 
 openssl rand -base64 64
 ```
 
