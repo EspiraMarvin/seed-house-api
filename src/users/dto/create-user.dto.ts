@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsEmail,
   IsEnum,
@@ -28,13 +29,14 @@ export class CreateUserDto {
 
   @IsString()
   @IsOptional()
-  phone_number?: string;
+  phone_number: string;
 
-  @MinLength(5)
+  @IsOptional()
   password: string;
 
   @IsEnum(Role, {
     message: 'Role must be one of the following values: user or admin',
   })
+  @Transform(({ value }) => value.toLowerCase())
   role: Role;
 }
