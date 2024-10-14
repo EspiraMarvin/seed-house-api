@@ -67,6 +67,7 @@ model Order {
   user_id String
   seed_id String
   quantity Float
+  total_amount Float
   status String @default("pending")  // pending, processing, failed, cancelled, completed
   collection_date DateTime
 
