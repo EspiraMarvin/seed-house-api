@@ -14,19 +14,18 @@ datasource db {
 }
 
 enum Role {
-  USER
-  ADMIN
+  USER  @map("user")
+  ADMIN @map("admin")
 }
 
 enum SKU {
-  GRAMS
-  KGS
+  KG @map("kg")
+  G @map("g")
 }
 
-enum  SeedType {
-  TYPE_A
-  TYPE_B
-  TYPE_C 
+enum SEEDTYPE {
+  IN_HOUSE @map("in_house")
+  OUT_SOURCED @map("out_sourced")
 }
 
 model User {
@@ -49,17 +48,17 @@ model User {
 model Seed {
   id  Int     @id @default(autoincrement())
   uuid   String  @default(uuid())  @unique
-  type String
+  type  SEEDTYPE @default(IN_HOUSE)
   name String
   description String?
   price Int @default(0)
   stock Int  @default(0) // the no of seeds available in stock
-  sku SKU @default(KGS)
+  sku SKU @default(KG)
 
   orders  Order[]  // seeds that have been ordered
 
   created_at  DateTime @default(now())
-  update_at  DateTime @updatedAt
+  updated_at  DateTime @updatedAt
 }
 
 model Order {
