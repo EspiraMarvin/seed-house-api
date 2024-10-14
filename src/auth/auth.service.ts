@@ -1,8 +1,8 @@
 import {
-  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -34,7 +34,7 @@ export class AuthService {
     });
 
     // if user doesnt exists throw exception
-    if (!user) throw new ForbiddenException('Credentials Incorrect');
+    if (!user) throw new UnauthorizedException('Credentials Incorrect');
 
     // compare password
     const pwdMatches = await compare(
@@ -43,10 +43,10 @@ export class AuthService {
     );
 
     if (!pwdMatches) {
-      throw new ForbiddenException('Credentials Incorrect');
+      throw new UnauthorizedException('Credentials Incorrect');
     }
 
-    return this.signToken(user.id.toString(), user.email);
+    return this.signToken(user.uuid.toString(), user.email);
   }
 
   /**
@@ -99,11 +99,20 @@ export class AuthService {
         first_name: dto.first_name,
         last_name: dto.last_name,
         email: dto.email,
-        role: Role[dto.role],
+        role: Role[dto.role.toUpperCase()],
         password: dto.password,
       },
     });
 
     return deletePwdFromResponse(newUser);
   }
+
+  /** update password */
+  // async updatePassword(email, dto) {
+  //   const exists = await this.prisma.user.findFirst({
+  //     where: {
+  //       email: dto.email,
+  //     },
+  //   });
+  // }
 }
