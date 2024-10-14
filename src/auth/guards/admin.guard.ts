@@ -24,15 +24,18 @@ export class AdminGuard implements CanActivate {
     if (!token) {
       throw new UnauthorizedException();
     }
+
     try {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET,
       });
+
       const user: User = await this.prisma.user.findUniqueOrThrow({
         where: {
-          id: payload.sub,
+          uuid: payload.sub,
         },
       });
+
       if (!user)
         throw new HttpException(
           {

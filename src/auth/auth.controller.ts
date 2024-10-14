@@ -35,4 +35,19 @@ export class AuthController {
   signup(@Body(new ValidationPipe()) dto: SignUpDto) {
     return this.authService.signUp(dto);
   }
+
+  // /**
+  //  * update password
+  //  */
+  // @Patch(':email')
+  // update(
+  //   @Param('email') id: string,
+  //   @Body(new ValidationPipe()) updateUserDto: UpdateUserDto,
+  // ) {
+  //   try {
+  //     return this.authService.updatePassword(id, updateUserDto);
+  //   } catch (error) {
+  //     throw new Error(error);
+  //   }
+  // }
 }
