@@ -1,11 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { hash } from 'bcryptjs';
-import { CreateUserDto, Role } from './dto/create-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   deletePwdFromResponse,
   generateRandomPassword,
 } from '../utils/helpers';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -26,18 +27,19 @@ export class UsersService {
       );
     }
 
+    /** randomly generated user password */
     const randomPwd = generateRandomPassword();
+
     // hash password
-    const hashedPassword = await hash(dto.password.toString(), 10);
-    dto.password = hashedPassword;
+    const hashedPassword = await hash(randomPwd.toString(), 10);
     const newUser = await this.prisma.user.create({
       data: {
         first_name: dto.first_name,
         last_name: dto.last_name,
         email: dto.email,
         phone_number: dto.phone_number,
-        role: Role[dto.role],
-        password: randomPwd,
+        role: Role[dto.role.toUpperCase()],
+        password: hashedPassword,
       },
     });
 
@@ -52,7 +54,8 @@ export class UsersService {
   }
 
   async findAll() {
-    return this.prisma.user.findMany();
+    const users = await this.prisma.user.findMany();
+    return users.map((user) => deletePwdFromResponse(user));
   }
 
   // find one by uuid
@@ -87,6 +90,10 @@ export class UsersService {
         },
         HttpStatus.NOT_FOUND,
       );
+    }
+
+    if (data.role) {
+      data.role = Role[data.role.toUpperCase()];
     }
 
     const updatedUser = this.prisma.user.update({
