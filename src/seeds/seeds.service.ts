@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateSeedDto } from './dto/create-seed.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { SKU } from '@prisma/client';
+import { SKU, SEEDTYPE } from '@prisma/client';
 
 @Injectable()
 export class SeedsService {
@@ -11,11 +11,9 @@ export class SeedsService {
     const seedExists = await this.prisma.seed.findFirst({
       where: {
         name: dto.name,
-        type: dto.type,
+        type: SEEDTYPE[dto.type.toUpperCase()],
       },
     });
-
-    console.log('seed Exists', seedExists);
 
     if (seedExists) {
       throw new HttpException(
@@ -30,10 +28,10 @@ export class SeedsService {
     const newSeed = await this.prisma.seed.create({
       data: {
         name: dto.name,
-        type: dto.type,
+        type: SEEDTYPE[dto.type.toUpperCase()],
         description: dto.description,
         price: dto.price,
-        sku: SKU[dto.sku],
+        sku: SKU[dto.sku.toUpperCase()],
       },
     });
 
