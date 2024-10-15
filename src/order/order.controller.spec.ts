@@ -3,6 +3,8 @@ import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 describe('OrderController', () => {
   let controller: OrderController;
@@ -10,7 +12,13 @@ describe('OrderController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [OrderController],
-      providers: [OrderService, PrismaService, ConfigService],
+      providers: [
+        OrderService,
+        PrismaService,
+        ConfigService,
+        JwtService,
+        AuthGuard,
+      ],
     }).compile();
 
     controller = module.get<OrderController>(OrderController);
