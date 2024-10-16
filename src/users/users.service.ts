@@ -8,11 +8,24 @@ import {
 } from '../utils/helpers';
 import { Role } from '@prisma/client';
 
+/*
+type UserWithoutPassword = Omit<User, 'password'>;
+
+interface UserResponse {
+  user: UserWithoutPassword;
+  password: string;
+}
+interface UserCreated {
+  message: string;
+  data: UserResponse;
+}
+*/
+
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateUserDto) {
+  async create(dto: CreateUserDto): Promise<any> {
     const userExists = await this.prisma.user.findFirst({
       where: { email: dto.email },
     });
