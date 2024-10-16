@@ -53,6 +53,37 @@ export class OrderService {
     // return order;
   }
 
+  async placeMultipleOrders(
+    seeds: { seedId: string; quantity: number }[],
+    userId: string,
+  ) {
+    // Array to keep track of the total cost and the seed stock updates
+    let totalAmount = 0;
+
+     // Loop over each seed order and validate stock
+     for (const { seedId, quantity } of seeds) {
+      const seed = await this.prisma.seed.findUnique({ where: { uuid: seedId } });
+
+      if (!seed) {
+        throw new Error(`Seed with ID ${seedId} not found`);
+      }
+
+      if (seed.stock < quantity) {
+        throw new Error(
+          `Insufficient stock for seed ${seed.name}, available: ${seed.stock}, requested: ${quantity}`
+        );
+      }
+
+         // Calculate total amount for this seed type and add to overall total
+         totalAmount += seed.price * quantity;
+
+         // Deduct stock for this seed
+         await this.prisma.seed.update({
+           where: { uuid: seedId },
+           data: { stock: { decrement: quantity } },
+         });
+  }
+
   // async completeTransaction(orderId: string) {
   //   const order = await this.prisma.order.findUnique({
   //     where: { uuid: orderId },
