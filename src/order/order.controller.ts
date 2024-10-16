@@ -28,6 +28,18 @@ export class OrderController {
     }
   }
 
+  @Post()
+  placeMultipleOrders(
+    @Body() seeds: { seedId: string; quantity: number }[],
+    @GetUserData('uuid') userId: string,
+  ) {
+    try {
+      return this.orderService.placeMultipleOrders(seeds, userId);
+    } catch (error) {
+      throw new error(error);
+    }
+  }
+
   @Get()
   findAll() {
     try {
