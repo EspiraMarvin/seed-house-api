@@ -13,7 +13,7 @@ export class OrderService {
       where: { uuid: dto.seed_id },
     });
 
-    console.log('SEED FOUND', seed);
+    //   console.log('SEED FOUND', seed);
 
     if (!seed || seed.stock < dto.quantity) {
       throw new Error('Insufficient stock');
@@ -49,10 +49,11 @@ export class OrderService {
       data: { stock: { decrement: dto.quantity } },
     });
 
-    // return 'This action adds a new order';
+    return 'This action adds a new order';
     // return order;
   }
 
+  /** place multiple orders */
   async placeMultipleOrders(
     seeds: { seedId: string; quantity: number }[],
     userId: string,
@@ -60,9 +61,11 @@ export class OrderService {
     // Array to keep track of the total cost and the seed stock updates
     let totalAmount = 0;
 
-     // Loop over each seed order and validate stock
-     for (const { seedId, quantity } of seeds) {
-      const seed = await this.prisma.seed.findUnique({ where: { uuid: seedId } });
+    // Loop over each seed order and validate stock
+    for (const { seedId, quantity } of seeds) {
+      const seed = await this.prisma.seed.findUnique({
+        where: { uuid: seedId },
+      });
 
       if (!seed) {
         throw new Error(`Seed with ID ${seedId} not found`);
@@ -70,51 +73,66 @@ export class OrderService {
 
       if (seed.stock < quantity) {
         throw new Error(
-          `Insufficient stock for seed ${seed.name}, available: ${seed.stock}, requested: ${quantity}`
+          `Insufficient stock for seed ${seed.name}, available: ${seed.stock}, requested: ${quantity}`,
         );
       }
 
-         // Calculate total amount for this seed type and add to overall total
-         totalAmount += seed.price * quantity;
+      // Calculate total amount for this seed type and add to overall total
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      totalAmount += seed.price * quantity;
 
-         // Deduct stock for this seed
-         await this.prisma.seed.update({
-           where: { uuid: seedId },
-           data: { stock: { decrement: quantity } },
-         });
+      // Deduct stock for this seed
+      await this.prisma.seed.update({
+        where: { uuid: seedId },
+        data: { stock: { decrement: quantity } },
+      });
+    }
+
+    // Create a new order for the user, you can decide to store seeds data in another table
+    const order = await this.prisma.order.create({
+      data: {
+        user_id: userId,
+        total_amount: totalAmount,
+        status: 'pending',
+      },
+    });
+    console.log('order', order);
   }
 
-  // async completeTransaction(orderId: string) {
-  //   const order = await this.prisma.order.findUnique({
-  //     where: { uuid: orderId },
-  //   });
-  //   if (!order) {
-  //     throw new Error('Order not found');
-  //   }
+  /** complete transaction */
+  async completeTransaction(orderId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { uuid: orderId },
+    });
+    if (!order) {
+      throw new Error('Order not found');
+    }
 
-  //   // Create a transaction for the order
-  //   const transaction = await this.prisma.transaction.create({
-  //     data: {
-  //       order_id: orderId,
-  //       amount: order.totalAmount,
-  //       status: 'completed',
-  //     },
-  //   });
+    // Create a transaction for the order
+    const transaction = await this.prisma.transaction.create({
+      data: {
+        order_id: orderId,
+        amount: order.total_amount,
+        status: 'completed',
+      },
+    });
 
-  //   // Update the order status to completed
-  //   await this.prisma.order.update({
-  //     where: { uuid: orderId },
-  //     data: { status: 'completed' },
-  //   });
+    // Update the order status to completed
+    await this.prisma.order.update({
+      where: { uuid: orderId },
+      data: { status: 'completed' },
+    });
 
-  //   return transaction;
-  // }
+    return transaction;
+  }
 
   async getUserOrders(userId: string) {
-    return this.prisma.order.findMany({
+    const orders = await this.prisma.order.findMany({
       where: { user_id: userId },
       include: { seed: true, transaction: true },
     });
+
+    return orders;
   }
 
   findAll() {
