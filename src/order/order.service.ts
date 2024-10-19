@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -136,18 +136,64 @@ export class OrderService {
   }
 
   findAll() {
-    return `This action returns all order`;
+    return this.prisma.order.findMany();
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} order`;
+  async findOne(id: string) {
+    const order = await this.prisma.order.findFirst({
+      where: { uuid: id },
+    });
+
+    if (!order) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'order not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return order;
   }
 
-  update(id: string, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
+  async update(id: string, data: UpdateOrderDto) {
+    const order = await this.prisma.order.findFirst({
+      where: { uuid: id },
+    });
+
+    if (!order) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'order not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const updatedOrder = this.prisma.order.update({
+      where: { uuid: id },
+      data,
+    });
+
+    return updatedOrder;
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} order`;
+  async remove(id: string) {
+    const order = await this.prisma.order.findFirst({
+      where: { uuid: id },
+    });
+
+    if (!order) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'order not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return order;
   }
 }
