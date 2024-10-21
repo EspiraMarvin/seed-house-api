@@ -38,11 +38,45 @@ export class SeedsService {
     return newSeed;
   }
 
+  /**
+   *
+   * @returns all seeds in stock
+   */
   async findAll() {
     return this.prisma.seed.findMany();
   }
 
-  async findSeed(name, type) {
+  /**
+   *
+   * @returns all seeds in stock
+   */
+  async findAllInStock() {
+    return this.prisma.seed.findMany({
+      where: {
+        stock: { gt: 0 },
+      },
+    });
+  }
+
+  /**
+   *
+   * @returns all seeds out of stock
+   */
+  async findAllOutOfStock() {
+    return this.prisma.seed.findMany({
+      where: {
+        AND: [{ stock: 0 }],
+      },
+    });
+  }
+
+  /**
+   * returns seed by name and type
+   * @param name
+   * @param type
+   * @returns
+   */
+  async findSeedByNameAndType(name, type) {
     const seed = await this.prisma.seed.findFirst({
       where: {
         AND: [{ name: name }, { type: type }],
@@ -52,7 +86,29 @@ export class SeedsService {
     return seed;
   }
 
-  async findSeedType(type) {
+  /**
+   * returns available seed by name and type
+   * @param name
+   * @param type
+   * @returns
+   */
+  async findAvailableSeedByNameAndType(name, type) {
+    const seed = await this.prisma.seed.findFirst({
+      where: {
+        stock: { gt: 0 }, // Only return seeds with stock > 0
+        AND: [{ name: name }, { type: type }],
+      },
+    });
+
+    return seed;
+  }
+
+  /**
+   * returns seed by type
+   * @param type
+   * @returns
+   */
+  async findSeedByType(type) {
     const seed = await this.prisma.seed.findFirst({
       where: {
         AND: [{ type: type }],
@@ -62,8 +118,8 @@ export class SeedsService {
     return seed;
   }
 
-  // Get seeds based on their type
-  async getAvailableSeedsByType(type) {
+  // Get available seeds based on their type
+  async findAvailableSeedsByType(type) {
     return this.prisma.seed.findMany({
       where: {
         type, // Filter by the seed type
@@ -88,6 +144,14 @@ export class SeedsService {
     }
 
     return seed;
+  }
+
+  // Update seed stock
+  async updateSeedStock(seedId: string, newStock: number) {
+    return this.prisma.seed.update({
+      where: { uuid: seedId },
+      data: { stock: newStock['stock'] },
+    });
   }
 
   async update(id: string, data) {
