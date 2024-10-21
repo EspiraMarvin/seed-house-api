@@ -69,7 +69,7 @@ model Order {
   quantity Float
   total_amount Float
   status String @default("pending")  // pending, processing, failed, cancelled, completed
-  collection_date DateTime
+  collection_date DateTime?
 
   user User @relation(fields: [user_id], references: [uuid])
   seed Seed @relation(fields: [seed_id], references: [uuid])
