@@ -1,24 +1,36 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
 
 @Controller('transactions')
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
-  @Post()
-  create(@Body() createTransactionDto: CreateTransactionDto) {
+  @Post('complete')
+  completeTransaction(@Body() orderId: string) {
     try {
-      return this.transactionService.create(createTransactionDto);
+      return this.transactionService.completeTransaction(orderId);
+    } catch (error) {
+      throw new error(error);
+    }
+  }
+
+  @Get('orders/:id')
+  findOrderTransactions(
+    @Param('id') orderId: string,
+    @Query('status') status?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    try {
+      // Convert date strings to Date objects if provided
+      const start = startDate ? new Date(startDate) : undefined;
+      const end = endDate ? new Date(endDate) : undefined;
+      return this.transactionService.findOrderTransactions(
+        orderId,
+        status,
+        start,
+        end,
+      );
     } catch (error) {
       throw new error(error);
     }
@@ -37,27 +49,6 @@ export class TransactionController {
   findOne(@Param('id') id: string) {
     try {
       return this.transactionService.findOne(id);
-    } catch (error) {
-      throw new error(error);
-    }
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateTransactionDto: UpdateTransactionDto,
-  ) {
-    try {
-      return this.transactionService.update(id, updateTransactionDto);
-    } catch (error) {
-      throw new error(error);
-    }
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    try {
-      return this.transactionService.remove(id);
     } catch (error) {
       throw new error(error);
     }
