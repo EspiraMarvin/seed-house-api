@@ -7,14 +7,16 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { GetUserData } from '../auth/decorator/get-user.decorator';
 import { AuthGuard } from '../auth/guards/auth.guard';
+// import { AdminGuard } from '../auth/guards/admin.guard';
 
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 @Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
@@ -28,22 +30,48 @@ export class OrderController {
     }
   }
 
-  @Post()
-  placeMultipleOrders(
-    @Body() seeds: { seedId: string; quantity: number }[],
-    @GetUserData('uuid') userId: string,
-  ) {
+  @Get()
+  findAll() {
     try {
-      return this.orderService.placeMultipleOrders(seeds, userId);
+      return this.orderService.findAll();
     } catch (error) {
       throw new error(error);
     }
   }
 
-  @Get()
-  findAll() {
+  /** GET /orders/users/:id: Returns the orders for the specified user */
+  // @UseGuards(AdminGuard) /** admin role */
+  @Get('users/:id')
+  findUserOrders(
+    @Param('id') userId: string,
+    @Query('status') status?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
     try {
-      return this.orderService.findAll();
+      // Convert date strings to Date objects if provided
+      const start = startDate ? new Date(startDate) : undefined;
+      const end = endDate ? new Date(endDate) : undefined;
+      return this.orderService.findUserOrders(userId, status, start, end);
+    } catch (error) {
+      throw new error(error);
+    }
+  }
+
+  /** GET /orders/user/: Returns the orders for the loggedin user */
+  @UseGuards(AuthGuard)
+  @Get('my-orders')
+  findLoggedInUserOrders(
+    @GetUserData('uuid') userId: string,
+    @Query('status') status?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    try {
+      // Convert date strings to Date objects if provided
+      const start = startDate ? new Date(startDate) : undefined;
+      const end = endDate ? new Date(endDate) : undefined;
+      return this.orderService.findUserOrders(userId, status, start, end);
     } catch (error) {
       throw new error(error);
     }
