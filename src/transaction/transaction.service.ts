@@ -1,29 +1,79 @@
-import { Injectable } from '@nestjs/common';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class TransactionService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(createTransactionDto: CreateTransactionDto) {
-    return 'This action adds a new transaction';
+  /** complete transaction */
+  async completeTransaction(body: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { uuid: body['order_id'] },
+    });
+
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    // Create a transaction for the order
+    const transaction = await this.prisma.transaction.create({
+      data: {
+        order_id: body['order_id'],
+        amount: order.total_amount,
+        status: 'completed',
+      },
+    });
+
+    // Update the order status to completed and
+    // the collection date to the current time transaction is completed, this is open for change later
+    await this.prisma.order.update({
+      where: { uuid: body['order_id'] },
+      data: { status: 'completed', collection_date: new Date(Date.now()) },
+    });
+
+    return transaction;
   }
 
-  findAll() {
-    return `This action returns all transaction`;
+  async findOrderTransactions(
+    orderId: string,
+    status?: string,
+    startDate?: Date,
+    endDate?: Date,
+  ) {
+    const orders = await this.prisma.transaction.findMany({
+      where: {
+        order_id: orderId,
+        status: status,
+        created_at: {
+          ...(startDate && { gte: startDate }),
+          ...(endDate && { lte: endDate }),
+        },
+      },
+      include: { order: true },
+    });
+
+    return orders;
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} transaction`;
+  async findAll() {
+    return this.prisma.transaction.findMany();
   }
 
-  update(id: string, updateTransactionDto: UpdateTransactionDto) {
-    return `This action updates a #${id} transaction`;
-  }
+  async findOne(id: string) {
+    const transaction = await this.prisma.transaction.findFirst({
+      where: { uuid: id },
+    });
 
-  remove(id: string) {
-    return `This action removes a #${id} transaction`;
+    if (!transaction) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'order not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return transaction;
   }
 }
