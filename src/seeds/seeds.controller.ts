@@ -26,6 +26,7 @@ export class SeedsController {
     }
   }
 
+  /** all seeds */
   @Get()
   findAll() {
     try {
@@ -35,30 +36,66 @@ export class SeedsController {
     }
   }
 
-  // GET http://localhost:4000/seeds/find?name=seedA&type=in-house
-  @Get()
-  findSeed(@Query('name') name: string, @Query('type') type: string) {
+  /** all seeds in stock */
+  @Get('in-stock')
+  findAllInStock() {
     try {
-      return this.seedsService.findSeed(name, type);
+      return this.seedsService.findAllInStock();
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  /** all seeds out of stock */
+  @Get('out-of-stock')
+  findAllOutOfStock() {
+    try {
+      return this.seedsService.findAllOutOfStock();
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  // GET http://localhost:4000/seeds/find?name=seedA&type=in-house
+  @Get('by-name-and-type')
+  findSeedByNameAndType(
+    @Query('name') name: string,
+    @Query('type') type: string,
+  ) {
+    try {
+      return this.seedsService.findSeedByNameAndType(name, type);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  // GET http://localhost:4000/seeds/find?name=seedA&type=in-house
+  @Get('available-by-name-and-type')
+  findAvaibleSeedByNameAndType(
+    @Query('name') name: string,
+    @Query('type') type: string,
+  ) {
+    try {
+      return this.seedsService.findSeedByNameAndType(name, type);
     } catch (error) {
       throw new Error(error);
     }
   }
 
   // GET http://localhost:4000/seeds/find?type=in-house
-  @Get()
-  findSeedType(@Query('type') type: string) {
+  @Get('by-type')
+  findSeedByType(@Query('type') type: string) {
     try {
-      return this.seedsService.findSeedType(type);
+      return this.seedsService.findSeedByType(type);
     } catch (error) {
       throw new Error(error);
     }
   }
 
-  @Get()
-  getAvailableSeedsByType(@Query('type') type: string) {
+  @Get('available-by-type')
+  findAvailableSeedsByType(@Query('type') type: string) {
     try {
-      return this.seedsService.getAvailableSeedsByType(type);
+      return this.seedsService.findAvailableSeedsByType(type);
     } catch (error) {
       throw new Error(error);
     }
@@ -68,6 +105,16 @@ export class SeedsController {
   findOne(@Param('id') id: string) {
     try {
       return this.seedsService.findOne(id);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  /** seeds/id/stock */
+  @Patch(':id/stock')
+  updateSeedStock(@Param('id') id: string, @Body() newStock: number) {
+    try {
+      return this.seedsService.updateSeedStock(id, newStock);
     } catch (error) {
       throw new Error(error);
     }
