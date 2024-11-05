@@ -9,14 +9,14 @@ import { AuthModule } from './auth/auth.module';
 import { OrderModule } from './order/order.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { SmsModule } from './sms/sms.module';
-import { CacheModule } from '@nestjs/cache-manager';
+// import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    CacheModule.register({
-      isGlobal: true,
-    }),
+    // CacheModule.register({
+    //   isGlobal: true,
+    // }),
     PrismaModule,
     UsersModule,
     SeedsModule,
