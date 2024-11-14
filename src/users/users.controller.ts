@@ -14,6 +14,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
+import { GetUserData } from 'src/auth/decorator/get-user.decorator';
 
 @UseGuards(AuthGuard)
 @Controller('users')
@@ -28,6 +29,12 @@ export class UsersController {
     } catch (error) {
       throw new error(error);
     }
+  }
+
+  @Get('me')
+  getProfileDetails(@GetUserData('uuid') userId: string) {
+    console.log('GetUserData', userId);
+    return this.usersService.getProfileDetails(userId);
   }
 
   @Get()

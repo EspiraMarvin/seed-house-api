@@ -66,6 +66,25 @@ export class UsersService {
     };
   }
 
+  async getProfileDetails(id: string) {
+    console.log('getProfileDetails SERVICE', id);
+
+    const user = await this.prisma.user.findFirst({
+      where: { uuid: id },
+    });
+
+    if (!user) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'user not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return user;
+  }
+
   async findAll() {
     const users = await this.prisma.user.findMany();
     return users.map((user) => deletePwdFromResponse(user));
