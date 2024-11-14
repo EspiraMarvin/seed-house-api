@@ -68,9 +68,13 @@ export class AuthService {
       expiresIn: '59m',
     });
 
-    return {
+    const data = {
       access_token: token,
+      email: email,
+      uuid: id,
     };
+
+    return data;
   }
 
   async signUp(dto: SignUpDto): Promise<User> {
