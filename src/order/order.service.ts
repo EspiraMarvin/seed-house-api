@@ -108,7 +108,23 @@ export class OrderService {
   }
 
   async findAll() {
-    return this.prisma.order.findMany();
+    return this.prisma.order.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            uuid: true,
+            email: true,
+            first_name: true,
+            last_name: true,
+            phone_number: true,
+            role: true,
+            is_active: true,
+          },
+        },
+        seed: true,
+      },
+    });
   }
 
   async findOne(id: string) {
