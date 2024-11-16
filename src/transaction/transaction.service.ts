@@ -56,7 +56,27 @@ export class TransactionService {
   }
 
   async findAll() {
-    return this.prisma.transaction.findMany();
+    return this.prisma.transaction.findMany({
+      include: {
+        order: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                uuid: true,
+                email: true,
+                first_name: true,
+                last_name: true,
+                phone_number: true,
+                role: true,
+                is_active: true,
+              },
+            },
+            seed: true,
+          },
+        },
+      },
+    });
   }
 
   async findOne(id: string) {
