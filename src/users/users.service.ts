@@ -67,8 +67,6 @@ export class UsersService {
   }
 
   async getProfileDetails(id: string) {
-    console.log('getProfileDetails SERVICE', id);
-
     const user = await this.prisma.user.findFirst({
       where: { uuid: id },
     });

@@ -33,7 +33,6 @@ export class UsersController {
 
   @Get('me')
   getProfileDetails(@GetUserData('uuid') userId: string) {
-    console.log('GetUserData', userId);
     return this.usersService.getProfileDetails(userId);
   }
 
