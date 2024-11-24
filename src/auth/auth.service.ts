@@ -46,7 +46,7 @@ export class AuthService {
       throw new UnauthorizedException('Credentials Incorrect');
     }
 
-    return this.signToken(user.uuid.toString(), user.email);
+    return this.signToken(user.uuid.toString(), user.email, user.role);
   }
 
   /**
@@ -58,6 +58,7 @@ export class AuthService {
   async signToken(
     id: string,
     email: string,
+    role: Role,
   ): Promise<{ access_token: string }> {
     const payload = { sub: id, email };
 
@@ -71,6 +72,7 @@ export class AuthService {
     const data = {
       access_token: token,
       email: email,
+      role: role,
       uuid: id,
     };
 
