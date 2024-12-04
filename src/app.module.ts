@@ -10,6 +10,8 @@ import { OrderModule } from './order/order.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { SmsModule } from './sms/sms.module';
 // import { CacheModule } from '@nestjs/cache-manager';
+import { TaskSchedulerModule } from './task-scheduler/task-scheduler.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -17,6 +19,7 @@ import { SmsModule } from './sms/sms.module';
     // CacheModule.register({
     //   isGlobal: true,
     // }),
+    ScheduleModule.forRoot(),
     PrismaModule,
     UsersModule,
     SeedsModule,
@@ -24,6 +27,7 @@ import { SmsModule } from './sms/sms.module';
     OrderModule,
     TransactionModule,
     SmsModule,
+    TaskSchedulerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
