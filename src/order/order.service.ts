@@ -184,4 +184,31 @@ export class OrderService {
     }
     return order;
   }
+
+  /**
+   * gets orders for tomorrow
+   * @returns
+   */
+  async getOrdersForTomorrow() {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const startOfDay = new Date(tomorrow.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(tomorrow.setHours(23, 59, 59, 999));
+    // this.prisma.transaction.create;
+    // get oders for tomorrow
+    // const orders = await this.prisma.order.findMany({
+    //   collection_date: '',
+    // });
+    return this.prisma.order.findMany({
+      where: {
+        collection_date: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+      },
+      include: {
+        user: true,
+      },
+    });
+  }
 }

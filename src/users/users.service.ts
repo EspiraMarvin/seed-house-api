@@ -42,6 +42,7 @@ export class UsersService {
 
     /** randomly generated user password */
     const randomPwd = generateRandomPassword();
+    console.log('randomPwd', randomPwd);
 
     // hash password
     const hashedPassword = await hash(randomPwd.toString(), 10);
