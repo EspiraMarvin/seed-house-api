@@ -14,7 +14,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
-import { GetUserData } from 'src/auth/decorator/get-user.decorator';
+import { GetUserData } from '../auth/decorator/get-user.decorator';
 
 @UseGuards(AuthGuard)
 @Controller('users')
