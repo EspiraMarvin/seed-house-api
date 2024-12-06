@@ -13,7 +13,7 @@ async function bootstrap() {
         'http://localhost:5173',
         'http://localhost:4000',
         'http://localhost:3000',
-        'https://54.211.199.61.nip.io',
+        'https://seed-house.vercel.app',
       ];
 
       if (!origin || allowedOrigins.includes(origin)) {
