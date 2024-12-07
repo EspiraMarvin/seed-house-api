@@ -51,6 +51,7 @@ model Seed {
   type  SEEDTYPE @default(IN_HOUSE)
   name String
   description String?
+  germination_period Int @default(0)
   price Int @default(0)
   stock Int  @default(0) // the no of seeds available in stock
   sku SKU @default(KG)
