@@ -32,6 +32,7 @@ export class SeedsService {
         description: dto.description,
         germination_period: dto.germination_period,
         price: dto.price,
+        stock: dto.stock,
         sku: SKU[dto.sku.toUpperCase()],
       },
     });
