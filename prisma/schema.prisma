@@ -31,10 +31,10 @@ enum SEEDTYPE {
 model User {
   id           Int     @id @default(autoincrement())
   uuid         String  @unique @default(uuid())
+  phone_number String  @unique
   email        String? @unique
   first_name   String
   last_name    String
-  phone_number String?
   role         Role    @default(USER)
   is_active    Boolean @default(true)
   password     String
