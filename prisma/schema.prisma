@@ -20,75 +20,94 @@ enum Role {
 
 enum SKU {
   KG @map("kg")
-  G @map("g")
+  G  @map("g")
 }
 
 enum SEEDTYPE {
-  IN_HOUSE @map("in_house")
+  IN_HOUSE    @map("in_house")
   OUT_SOURCED @map("out_sourced")
 }
 
 model User {
-  id  Int    @id @default(autoincrement())
-  uuid   String  @default(uuid())  @unique
-  email  String?  @unique
-  first_name  String
-  last_name  String
-  phone_number  String?
-  role  Role   @default(USER)
-  is_active  Boolean @default(true)
-  password  String
+  id           Int     @id @default(autoincrement())
+  uuid         String  @unique @default(uuid())
+  email        String? @unique
+  first_name   String
+  last_name    String
+  phone_number String?
+  role         Role    @default(USER)
+  is_active    Boolean @default(true)
+  password     String
 
-  orders  Order[] // a user can place multiple orders
-  
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  orders Order[] // a user can place multiple orders
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model Seed {
-  id  Int     @id @default(autoincrement())
-  uuid   String  @default(uuid())  @unique
-  type  SEEDTYPE @default(IN_HOUSE)
-  name String
-  description String?
-  germination_period Int @default(0)
-  price Int @default(0)
-  stock Int  @default(0) // the no of seeds available in stock
-  sku SKU @default(KG)
+  id                 Int      @id @default(autoincrement())
+  uuid               String   @unique @default(uuid())
+  type               SEEDTYPE @default(IN_HOUSE)
+  name               String
+  description        String?
+  germination_period Int      @default(0) // period in days
+  price              Int      @default(0)
+  stock              Int      @default(0) // the no of seeds available in stock
+  sku                SKU      @default(KG)
 
-  orders  Order[]  // seeds that have been ordered
+  orders Order[] // seeds that have been ordered
 
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  created_at       DateTime           @default(now())
+  updated_at       DateTime           @updatedAt
+  SeedStockHistory SeedStockHistory[]
+}
+
+model SeedStockHistory {
+  id                Int     @id @default(autoincrement())
+  uuid              String  @unique @default(uuid())
+  seed_id           String
+  previous_stock    Int
+  new_stock         Int
+  stock_difference  Int     @default(0) // Difference in stock (new_stock - previous_stock)
+  total_stock_added Int     @default(0) // cumulative total stock added
+  reason            String? // Optional field to capture why the stock was updated
+
+  seed Seed @relation(fields: [seed_id], references: [uuid])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([seed_id])
 }
 
 model Order {
-  id  Int     @id @default(autoincrement())
-  uuid   String  @default(uuid())  @unique
-  user_id String
-  seed_id String
-  quantity Float
-  total_amount Float
-  status String @default("pending")  // pending, processing, failed, cancelled, completed
+  id              Int       @id @default(autoincrement())
+  uuid            String    @unique @default(uuid())
+  user_id         String
+  seed_id         String
+  quantity        Float
+  total_amount    Float
+  status          String    @default("pending") // pending, processing, failed, cancelled, completed
   collection_date DateTime?
 
-  user User @relation(fields: [user_id], references: [uuid])
-  seed Seed @relation(fields: [seed_id], references: [uuid])
-  transaction Transaction?  // order is linked to a transaction
+  user        User         @relation(fields: [user_id], references: [uuid])
+  seed        Seed         @relation(fields: [seed_id], references: [uuid])
+  transaction Transaction? // order is linked to a transaction
 
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model Transaction {
-  id  Int     @id @default(autoincrement())
-  uuid   String  @default(uuid())  @unique
+  id       Int    @id @default(autoincrement())
+  uuid     String @unique @default(uuid())
   order_id String @unique
-  status String @default("processing")  // processing, failed, completed
-  amount Float
+  status   String @default("processing") // processing, failed, completed
+  amount   Float
 
   order Order @relation(fields: [order_id], references: [uuid])
 
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
