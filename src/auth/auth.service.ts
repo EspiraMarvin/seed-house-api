@@ -107,7 +107,6 @@ export class AuthService {
 
     // generate the password hash
     const hashedPassword = await hash(dto.password.toString(), 10);
-    dto.password = hashedPassword;
 
     const newUser = await this.prisma.user.create({
       data: {
@@ -116,7 +115,7 @@ export class AuthService {
         phone_number: dto.phone_number,
         email: dto.email,
         role: Role[dto.role.toUpperCase()],
-        password: dto.password,
+        password: hashedPassword,
       },
     });
 

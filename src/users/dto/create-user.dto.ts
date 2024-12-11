@@ -14,10 +14,9 @@ export enum Role {
 }
 
 export class CreateUserDto {
-  @IsEmail()
-  @MinLength(6)
+  @IsString()
   @IsNotEmpty()
-  email: string;
+  phone_number: string;
 
   @MinLength(2)
   @IsNotEmpty()
@@ -27,9 +26,10 @@ export class CreateUserDto {
   @IsNotEmpty()
   last_name: string;
 
-  @IsString()
   @IsOptional()
-  phone_number: string;
+  @IsEmail()
+  @MinLength(6)
+  email: string;
 
   @IsOptional()
   password: string;

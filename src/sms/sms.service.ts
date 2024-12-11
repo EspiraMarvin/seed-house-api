@@ -15,7 +15,6 @@ export class SmsService {
 
     const timeStamp = new Date();
     const smsInstance = AfricasTalking(credentials);
-    console.log('smsm InarND3', smsInstance);
     try {
       const result = await smsInstance.SMS.send({
         to: '+254791425789',

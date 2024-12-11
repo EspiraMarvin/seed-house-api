@@ -59,6 +59,7 @@ export class SeedsService {
       where: {
         stock: { gt: 0 },
       },
+      orderBy: { created_at: 'desc' },
     });
   }
 
@@ -71,6 +72,7 @@ export class SeedsService {
       where: {
         AND: [{ stock: 0 }],
       },
+      orderBy: { created_at: 'desc' },
     });
   }
 
