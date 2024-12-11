@@ -124,6 +124,7 @@ export class OrderService {
         },
         seed: true,
       },
+      orderBy: { created_at: 'desc' },
     });
   }
 

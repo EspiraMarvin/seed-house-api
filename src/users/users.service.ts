@@ -81,11 +81,13 @@ export class UsersService {
         HttpStatus.NOT_FOUND,
       );
     }
-    return user;
+    return deletePwdFromResponse(user);
   }
 
   async findAll() {
-    const users = await this.prisma.user.findMany();
+    const users = await this.prisma.user.findMany({
+      orderBy: { created_at: 'desc' },
+    });
     return users.map((user) => deletePwdFromResponse(user));
   }
 
@@ -127,11 +129,14 @@ export class UsersService {
       data.role = Role[data.role.toUpperCase()];
     }
 
-    const updatedUser = this.prisma.user.update({
-      where: { uuid: id }, // Update based on user ID
-      data, // Fields to update
-    });
+    if (data.password) {
+      data.password = await hash(data.password.toString(), 10);
+    }
 
+    const updatedUser = await this.prisma.user.update({
+      where: { uuid: id }, // Update based on user uuid
+      data, // fields to patch
+    });
     return deletePwdFromResponse(updatedUser);
   }
 
