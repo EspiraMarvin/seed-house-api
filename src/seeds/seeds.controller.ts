@@ -101,6 +101,15 @@ export class SeedsController {
     }
   }
 
+  @Get('stock-history')
+  listSeedStockHistory() {
+    try {
+      return this.seedsService.listSeedStockHistory();
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     try {

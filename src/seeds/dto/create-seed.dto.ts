@@ -27,6 +27,9 @@ export class CreateSeedDto {
   description: string;
 
   @IsNumber()
+  germination_period: number;
+
+  @IsNumber()
   price: number;
 
   @IsNumber()
