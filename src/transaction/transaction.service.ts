@@ -76,6 +76,7 @@ export class TransactionService {
           },
         },
       },
+      orderBy: { created_at: 'desc' },
     });
   }
 
