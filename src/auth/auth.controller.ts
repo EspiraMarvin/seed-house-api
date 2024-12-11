@@ -20,7 +20,7 @@ export class AuthController {
   signin(@Body() body: SignInDto) {
     try {
       return this.authService.signIn({
-        email: body.email,
+        phone_number: body.phone_number,
         password: body.password,
       });
     } catch (err) {

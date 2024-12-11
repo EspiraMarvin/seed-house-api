@@ -14,9 +14,9 @@ export enum Role {
 }
 
 export class SignUpDto {
+  @IsOptional()
   @IsEmail()
   @MinLength(6)
-  @IsNotEmpty()
   email: string;
 
   @MinLength(2)
@@ -28,7 +28,7 @@ export class SignUpDto {
   last_name: string;
 
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   phone_number: string;
 
   @IsString()
