@@ -14,6 +14,7 @@ async function bootstrap() {
         'http://localhost:4000',
         'http://localhost:3000',
         'https://seed-house.vercel.app',
+        'https://seed-house-fe.vercel.app',
       ];
 
       if (!origin || allowedOrigins.includes(origin)) {
