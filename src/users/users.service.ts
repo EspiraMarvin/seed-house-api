@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { hash } from 'bcryptjs';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { SmsService } from '../sms/sms.service';
 import {
   deletePwdFromResponse,
   generateRandomPassword,
@@ -23,18 +24,21 @@ interface UserCreated {
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly smsService: SmsService,
+  ) {}
 
   async create(dto: CreateUserDto): Promise<any> {
     const userExists = await this.prisma.user.findFirst({
-      where: { email: dto.email },
+      where: { phone_number: dto.phone_number },
     });
 
     if (userExists) {
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
-          error: `User with ${dto.email} email already exists`,
+          error: `User with phone number already exists`,
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -50,13 +54,17 @@ export class UsersService {
       data: {
         first_name: dto.first_name,
         last_name: dto.last_name,
-        email: dto.email,
         phone_number: dto.phone_number,
+        email: dto.email,
         role: Role[dto.role.toUpperCase()],
         password: hashedPassword,
       },
     });
 
+    this.smsService.sendMessage({
+      message: `An Account has been setup for you, with ${randomPwd} as password,
+       Login to reset the password & continue using the platform.`,
+    });
     const deletedUserPwd = deletePwdFromResponse(newUser);
 
     //TODO: SEND NEWLY CREATED USERS EMAIL/SMS  TO RESET PWDS
