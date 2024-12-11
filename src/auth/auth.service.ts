@@ -26,10 +26,10 @@ export class AuthService {
    * @returns
    */
   async signIn(dto: SignInDto): Promise<any> {
-    // find user by email
+    // find user by phone_number
     const user = await this.prisma.user.findUnique({
       where: {
-        email: dto.email,
+        phone_number: dto.phone_number,
       },
     });
 
@@ -46,7 +46,7 @@ export class AuthService {
       throw new UnauthorizedException('Credentials Incorrect');
     }
 
-    return this.signToken(user.uuid.toString(), user.email, user.role);
+    return this.signToken(user.uuid.toString(), user.phone_number, user.role);
   }
 
   /**
@@ -57,10 +57,10 @@ export class AuthService {
    */
   async signToken(
     id: string,
-    email: string,
+    phone_number: string,
     role: Role,
   ): Promise<{ access_token: string }> {
-    const payload = { sub: id, email };
+    const payload = { sub: id, phone_number };
 
     const secret = this.config.get('JWT_SECRET');
 
@@ -71,7 +71,7 @@ export class AuthService {
 
     const data = {
       access_token: token,
-      email: email,
+      phone_number: phone_number,
       role: role,
       uuid: id,
     };
@@ -83,7 +83,7 @@ export class AuthService {
     // check if user exists
     const exists = await this.prisma.user.findFirst({
       where: {
-        email: dto.email,
+        phone_number: dto.phone_number,
       },
     });
 
@@ -104,6 +104,7 @@ export class AuthService {
       data: {
         first_name: dto.first_name,
         last_name: dto.last_name,
+        phone_number: dto.phone_number,
         email: dto.email,
         role: Role[dto.role.toUpperCase()],
         password: dto.password,
