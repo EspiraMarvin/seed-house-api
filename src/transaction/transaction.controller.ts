@@ -1,6 +1,16 @@
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { TransactionService } from './transaction.service';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('transactions')
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
