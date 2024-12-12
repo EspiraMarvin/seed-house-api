@@ -8,11 +8,14 @@ import {
   Delete,
   ValidationPipe,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { SeedsService } from './seeds.service';
 import { CreateSeedDto } from './dto/create-seed.dto';
 import { UpdateSeedDto } from './dto/update-seed.dto';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('seeds')
 export class SeedsController {
   constructor(private readonly seedsService: SeedsService) {}

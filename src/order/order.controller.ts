@@ -14,9 +14,9 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { GetUserData } from '../auth/decorator/get-user.decorator';
 import { AuthGuard } from '../auth/guards/auth.guard';
-// import { AdminGuard } from '../auth/guards/admin.guard';
+import { AdminGuard } from '../auth/guards/admin.guard';
 
-// @UseGuards(AuthGuard)
+@UseGuards(AuthGuard)
 @Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
@@ -40,7 +40,7 @@ export class OrderController {
   }
 
   /** GET /orders/users/:id: Returns the orders for the specified user */
-  // @UseGuards(AdminGuard) /** admin role */
+  @UseGuards(AdminGuard) /** admin role */
   @Get('users/:id')
   findUserOrders(
     @Param('id') userId: string,
