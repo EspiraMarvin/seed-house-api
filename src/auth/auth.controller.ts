@@ -36,18 +36,15 @@ export class AuthController {
     return this.authService.signUp(dto);
   }
 
-  // /**
-  //  * update password
-  //  */
-  // @Patch(':email')
-  // update(
-  //   @Param('email') id: string,
-  //   @Body(new ValidationPipe()) updateUserDto: UpdateUserDto,
-  // ) {
-  //   try {
-  //     return this.authService.updatePassword(id, updateUserDto);
-  //   } catch (error) {
-  //     throw new Error(error);
-  //   }
-  // }
+  /**
+   * forgot password, sent OTP to number, confirm OTP and send new password to use and reset
+   */
+  @Post('forgot-password')
+  update(@Body() recipient: { phone_number: string }) {
+    try {
+      return this.authService.forgotPassword(recipient);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }
