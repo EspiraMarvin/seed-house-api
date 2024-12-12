@@ -12,6 +12,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ResetUserPasswordDto } from './dto/reset-password.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { GetUserData } from '../auth/decorator/get-user.decorator';
@@ -36,7 +37,16 @@ export class UsersController {
     return this.usersService.getProfileDetails(userId);
   }
 
+  @Post('reset-password')
+  resetPassword(
+    @Body(new ValidationPipe()) body: ResetUserPasswordDto,
+    @GetUserData('uuid') userId: string,
+  ) {
+    return this.usersService.resetPassword(body, userId);
+  }
+
   @Get()
+  @UseGuards(AdminGuard)
   findAll() {
     try {
       return this.usersService.findAll();
@@ -46,6 +56,7 @@ export class UsersController {
   }
 
   @Get(':id')
+  @UseGuards(AdminGuard)
   findOne(@Param('id') id: string) {
     try {
       return this.usersService.findOne(id);
@@ -55,6 +66,7 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @UseGuards(AdminGuard)
   update(
     @Param('id') id: string,
     @Body(new ValidationPipe()) updateUserDto: UpdateUserDto,
@@ -67,6 +79,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @UseGuards(AdminGuard)
   remove(@Param('id') id: string) {
     try {
       return this.usersService.remove(id);

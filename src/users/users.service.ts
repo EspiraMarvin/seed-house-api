@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { hash } from 'bcryptjs';
+import { compare, hash } from 'bcryptjs';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { SmsService } from '../sms/sms.service';
@@ -62,8 +62,8 @@ export class UsersService {
     });
 
     this.smsService.sendMessage({
-      message: `An Account has been setup for you, with ${randomPwd} as password,
-       Login to reset the password & continue using the platform.`,
+      message: `An Account has been setup for you, with ${randomPwd} as password, login to reset the password & start shopping our seeds catalogue.`,
+      recipient: newUser.phone_number,
     });
     const deletedUserPwd = deletePwdFromResponse(newUser);
 
@@ -137,8 +137,9 @@ export class UsersService {
       data.role = Role[data.role.toUpperCase()];
     }
 
+    // prevent updating password
     if (data.password) {
-      data.password = await hash(data.password.toString(), 10);
+      delete data.password;
     }
 
     const updatedUser = await this.prisma.user.update({
@@ -146,6 +147,51 @@ export class UsersService {
       data, // fields to patch
     });
     return deletePwdFromResponse(updatedUser);
+  }
+
+  /**
+   * reset new loggedin user password
+   */
+  async resetPassword(body, id: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { uuid: id },
+    });
+
+    if (!user) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'user not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    // compare password
+    const pwdMatches = await compare(
+      body.old_password.toString(),
+      user.password,
+    );
+
+    if (!pwdMatches) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'Old password is incorrect',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const hashedPassword = await hash(body.new_password.toString(), 10);
+    const data = { password: hashedPassword };
+
+    const updatedUserWithPwd = await this.prisma.user.update({
+      where: { uuid: id }, // Update based on user uuid
+      data, // fields to patch
+    });
+
+    return deletePwdFromResponse(updatedUserWithPwd);
   }
 
   /**
