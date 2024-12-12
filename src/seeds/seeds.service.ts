@@ -181,7 +181,7 @@ export class SeedsService {
     // const totalStockAdded =
     // (lastStockHistory?.total_stock_added || 0) + Math.max(0, stockDifference);
     const totalStockAdded =
-      (lastStockHistory?.total_stock_added || 0) + Math.abs(stockDifference);
+      (lastStockHistory?.total_stock_added || 0) + newStock['stock'];
 
     // Update the stock in the Seed table
     const updatedSeed = await this.prisma.seed.update({
