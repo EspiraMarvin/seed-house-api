@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TaskSchedulerController } from './task-scheduler.controller';
 import { TaskSchedulerService } from './task-scheduler.service';
 import { OrderService } from '../order/order.service';
-import { SmsService } from 'src/sms/sms.service';
+import { SmsService } from '../sms/sms.service';
 
 @Module({
   controllers: [TaskSchedulerController],
