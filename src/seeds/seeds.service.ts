@@ -178,8 +178,10 @@ export class SeedsService {
       orderBy: { created_at: 'desc' },
     });
     // Calculate the cumulative total stock added
+    // const totalStockAdded =
+    // (lastStockHistory?.total_stock_added || 0) + Math.max(0, stockDifference);
     const totalStockAdded =
-      (lastStockHistory?.total_stock_added || 0) + Math.max(0, stockDifference);
+      (lastStockHistory?.total_stock_added || 0) + Math.abs(stockDifference);
 
     // Update the stock in the Seed table
     const updatedSeed = await this.prisma.seed.update({
@@ -193,7 +195,7 @@ export class SeedsService {
         seed_id: seedId,
         previous_stock: previousStock,
         new_stock: newStock['stock'],
-        stock_difference: Number(stockDifference),
+        stock_difference: Math.abs(stockDifference),
         total_stock_added: totalStockAdded,
       },
     });
@@ -207,6 +209,7 @@ export class SeedsService {
       include: {
         seed: true,
       },
+      orderBy: { created_at: 'desc' },
     });
     return stockHistory;
   }
