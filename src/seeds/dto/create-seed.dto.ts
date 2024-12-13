@@ -35,6 +35,9 @@ export class CreateSeedDto {
   @IsNumber()
   stock: number;
 
+  @IsOptional()
+  is_new_tock: boolean;
+
   @IsEnum(SEEDTYPE, {
     message:
       'Seed Type must be one of the following values: in_house, out_sourced',

@@ -37,6 +37,17 @@ export class SeedsService {
       },
     });
 
+    // Create an entry in the SeedStockHistory table to keep track
+    await this.prisma.seedStockHistory.create({
+      data: {
+        seed_id: newSeed.uuid,
+        previous_stock: 0,
+        new_stock: dto.stock,
+        stock_difference: dto.stock,
+        total_stock_added: dto.stock,
+      },
+    });
+
     return newSeed;
   }
 
@@ -230,8 +241,96 @@ export class SeedsService {
       );
     }
 
+    // if stock data is updated, it means it was added as an error,
+    // therefore update the seed stock history to reflect the current stock,
+    // cumulative stock & added stock
+    if (data.stock) {
+      const lastTwoStockHistoryRecords =
+        await this.prisma.seedStockHistory.findMany({
+          where: { seed_id: seed.uuid },
+          orderBy: { created_at: 'desc' },
+          take: 2, // Fetch the last two records
+        });
+
+      let correctStockHistory = undefined;
+      let firstRecord = false;
+      if (!lastTwoStockHistoryRecords[1]) {
+        correctStockHistory = lastTwoStockHistoryRecords[0];
+        firstRecord = true;
+      } else {
+        correctStockHistory = lastTwoStockHistoryRecords[1];
+        firstRecord = false;
+      }
+      console.log('firstRecord', firstRecord);
+
+      // update stock if not of same val and its just editing
+      if (!data.is_new_stock) {
+        console.log('correctStockHistory', correctStockHistory);
+
+        // Calculate the difference in stock added
+        const stockDifference = data.stock - correctStockHistory.previous_stock;
+
+        // // Calculate the cumulative total stock added
+        const totalStockAdded =
+          (!firstRecord ? correctStockHistory.total_stock_added : 0 || 0) +
+          data.stock;
+
+        // Create an entry in the SeedStockHistory table to keep track
+        await this.prisma.seedStockHistory.update({
+          where: {
+            uuid: firstRecord
+              ? lastTwoStockHistoryRecords[1].uuid
+              : lastTwoStockHistoryRecords[0].uuid,
+          },
+          data: {
+            previous_stock: firstRecord
+              ? 0
+              : correctStockHistory.previous_stock,
+            new_stock: data.stock,
+            stock_difference: Math.abs(stockDifference),
+            total_stock_added: totalStockAdded,
+          },
+        });
+        // console.log('UPDATE STACK IS NOT NEW STOCK', data);
+      } else if (data.is_new_stock) {
+        // get previous stock
+        const previousStock = seed.stock;
+        // Calculate the difference in stock added
+        const stockDifference = data.stock - previousStock;
+
+        const lastStockHistory = await this.prisma.seedStockHistory.findFirst({
+          where: { seed_id: seed.uuid },
+          orderBy: { created_at: 'desc' },
+        });
+        // Calculate the cumulative total stock added
+        const totalStockAdded =
+          (lastStockHistory?.total_stock_added || 0) + data.stock;
+
+        // Create an entry in the SeedStockHistory table to keep track
+        await this.prisma.seedStockHistory.create({
+          data: {
+            seed_id: seed.uuid,
+            previous_stock: previousStock,
+            new_stock: data.stock,
+            stock_difference: Math.abs(stockDifference),
+            total_stock_added: totalStockAdded,
+          },
+        });
+        // console.log('UPDATE STACK IS NEW STOCK', data);
+      } else if (
+        !data.is_new_stock &&
+        correctStockHistory.new_stock === data.stock
+      ) {
+        // dont update is stock is same value
+        delete data.stock;
+        // console.log('DPNT UPDATE STACK', data);
+      }
+    }
+
+    delete data.id;
+    delete data.is_new_stock;
     const updatedSeed = this.prisma.seed.update({
-      where: { uuid: id },
+      where: { uuid: seed.uuid },
       data,
     });
 
