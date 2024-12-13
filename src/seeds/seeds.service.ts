@@ -261,7 +261,6 @@ export class SeedsService {
         correctStockHistory = lastTwoStockHistoryRecords[1];
         firstRecord = false;
       }
-      console.log('firstRecord', firstRecord);
 
       // update stock if not of same val and its just editing
       if (!data.is_new_stock) {
@@ -279,8 +278,8 @@ export class SeedsService {
         await this.prisma.seedStockHistory.update({
           where: {
             uuid: firstRecord
-              ? lastTwoStockHistoryRecords[1].uuid
-              : lastTwoStockHistoryRecords[0].uuid,
+              ? lastTwoStockHistoryRecords[0].uuid
+              : lastTwoStockHistoryRecords[1].uuid,
           },
           data: {
             previous_stock: firstRecord
@@ -310,7 +309,7 @@ export class SeedsService {
         await this.prisma.seedStockHistory.create({
           data: {
             seed_id: seed.uuid,
-            previous_stock: previousStock,
+            previous_stock: lastStockHistory?.previous_stock || 0,
             new_stock: data.stock,
             stock_difference: Math.abs(stockDifference),
             total_stock_added: totalStockAdded,
