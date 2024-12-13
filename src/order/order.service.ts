@@ -102,6 +102,7 @@ export class OrderService {
         },
       },
       include: { seed: true, transaction: true },
+      orderBy: { created_at: 'desc' },
     });
 
     return orders;
