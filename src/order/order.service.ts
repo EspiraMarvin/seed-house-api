@@ -22,8 +22,21 @@ export class OrderService {
    */
   async create(dto: CreateOrderDto, userId: string) {
     const seeds = Array.isArray(dto.seeds) ? dto.seeds : [dto.seeds];
-    await this.placeOrders(seeds, userId);
+    const ordersPlaced = await this.placeOrders(seeds, userId);
+    return ordersPlaced;
   }
+
+  /**
+   * calculate seed collection date
+   * @param germinationPeriod
+   * @returns
+   */
+  calculateCollectionDate = async (germinationPeriod) => {
+    const currentDate = new Date(); // Get the current date
+    const collectionDate = new Date(); // Create a new date instance
+    collectionDate.setDate(currentDate.getDate() + germinationPeriod); // Add germination period in days
+    return collectionDate; // Return the calculated date
+  };
 
   /**
    *
@@ -66,24 +79,31 @@ export class OrderService {
       totalAmount += seed.price * quantity;
 
       // Deduct stock for this seed
-      await this.prisma.seed.update({
+      const seedQuantityDecremented = await this.prisma.seed.update({
         where: { uuid: seed_id },
         data: { stock: { decrement: quantity } },
       });
 
-      // Create a new order for the user
-      const order = await this.prisma.order.create({
-        data: {
-          user_id: userId,
-          seed_id: seed.uuid,
-          quantity: quantity,
-          total_amount: totalAmount,
-          status: 'pending',
-        },
-      });
-      return order;
+      if (seedQuantityDecremented) {
+        // Create a new order for the user
+        const collection_date = await this.calculateCollectionDate(
+          seed.germination_period,
+        );
+
+        await this.prisma.order.create({
+          data: {
+            user_id: userId,
+            seed_id: seed.uuid,
+            quantity: quantity,
+            total_amount: totalAmount,
+            collection_date: collection_date,
+            status: 'pending',
+          },
+        });
+
+        return { message: 'success' };
+      }
     }
-    return { data: 'success' };
   }
 
   async findUserOrders(
@@ -196,11 +216,6 @@ export class OrderService {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const startOfDay = new Date(tomorrow.setHours(0, 0, 0, 0));
     const endOfDay = new Date(tomorrow.setHours(23, 59, 59, 999));
-    // this.prisma.transaction.create;
-    // get oders for tomorrow
-    // const orders = await this.prisma.order.findMany({
-    //   collection_date: '',
-    // });
     return this.prisma.order.findMany({
       where: {
         collection_date: {
