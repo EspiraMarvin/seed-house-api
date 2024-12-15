@@ -41,8 +41,9 @@ model User {
 
   orders Order[] // a user can place multiple orders
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  deleted_at DateTime? // Soft delete field
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
 }
 
 model Seed {
@@ -58,6 +59,7 @@ model Seed {
 
   orders Order[] // seeds that have been ordered
 
+  deleted_at       DateTime? // Soft delete field
   created_at       DateTime           @default(now())
   updated_at       DateTime           @updatedAt
   SeedStockHistory SeedStockHistory[]

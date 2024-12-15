@@ -30,6 +30,7 @@ export class OrderController {
     }
   }
 
+  @UseGuards(AdminGuard) /** admin role */
   @Get()
   findAll() {
     try {

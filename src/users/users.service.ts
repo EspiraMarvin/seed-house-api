@@ -96,6 +96,9 @@ export class UsersService {
 
   async findAll() {
     const users = await this.prisma.user.findMany({
+      where: {
+        deleted_at: null, // Only fetch users that are not soft-deleted
+      },
       orderBy: { created_at: 'desc' },
     });
     return users.map((user) => deletePwdFromResponse(user));
@@ -215,10 +218,13 @@ export class UsersService {
       );
     }
 
-    const deleteUser = await this.prisma.user.delete({
+    // Perform soft delete by setting 'deletedAt' to the current time
+    const data = { deleted_at: new Date() };
+    const updateUser = await this.prisma.user.update({
       where: { uuid: id },
+      data,
     });
 
-    return deletePwdFromResponse(deleteUser);
+    return deletePwdFromResponse(updateUser);
   }
 }
