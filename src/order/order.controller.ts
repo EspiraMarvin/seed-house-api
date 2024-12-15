@@ -96,6 +96,17 @@ export class OrderController {
     }
   }
 
+  /** orders/id/status */
+  @UseGuards(AdminGuard) /** admin role */
+  @Patch(':id/status')
+  updateOrderstatus(@Param('id') id: string, @Body() status: string) {
+    try {
+      return this.orderService.updateOrderStatus(id, status);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     try {

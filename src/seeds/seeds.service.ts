@@ -189,8 +189,6 @@ export class SeedsService {
       orderBy: { created_at: 'desc' },
     });
     // Calculate the cumulative total stock added
-    // const totalStockAdded =
-    // (lastStockHistory?.total_stock_added || 0) + Math.max(0, stockDifference);
     const totalStockAdded =
       (lastStockHistory?.total_stock_added || 0) + newStock['stock'];
 
