@@ -47,7 +47,6 @@ export class OrderService {
           },
           HttpStatus.NOT_FOUND,
         );
-        // throw new Error(`Seed with ID ${seed_id} not found`);
       }
 
       /**
@@ -84,6 +83,7 @@ export class OrderService {
       });
       return order;
     }
+    return { data: 'success' };
   }
 
   async findUserOrders(
