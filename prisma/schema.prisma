@@ -55,7 +55,7 @@ model Seed {
   germination_period Int      @default(0) // period in days
   price              Int      @default(0)
   stock              Int      @default(0) // the no of seeds available in stock
-  sku                SKU      @default(KG)
+  sku                SKU?
 
   orders Order[] // seeds that have been ordered
 

@@ -45,9 +45,9 @@ export class CreateSeedDto {
   @Transform(({ value }) => value.toLowerCase())
   type: SEEDTYPE;
 
-  @IsEnum(SKU, {
-    message: 'SKU must be one of the following values: kg, g',
-  })
-  @Transform(({ value }) => value.toLowerCase())
-  sku: SKU;
+  // @IsEnum(SKU, {
+  //   message: 'SKU must be one of the following values: kg, g',
+  // })
+  // @Transform(({ value }) => value.toLowerCase())
+  // sku: SKU;
 }
