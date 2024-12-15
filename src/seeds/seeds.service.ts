@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateSeedDto } from './dto/create-seed.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { SKU, SEEDTYPE } from '@prisma/client';
+import { SEEDTYPE } from '@prisma/client';
 
 @Injectable()
 export class SeedsService {
@@ -33,7 +33,7 @@ export class SeedsService {
         germination_period: dto.germination_period,
         price: dto.price,
         stock: dto.stock,
-        sku: SKU[dto.sku.toUpperCase()],
+        // sku: SKU[dto.sku.toUpperCase()],
       },
     });
 
