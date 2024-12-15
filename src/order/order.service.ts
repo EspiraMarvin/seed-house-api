@@ -190,6 +190,30 @@ export class OrderService {
     return updatedOrder;
   }
 
+  async updateOrderStatus(orderId: string, status: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { uuid: orderId },
+    });
+
+    if (!order) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'order not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    // Update the status in the order table
+    const updatedOrder = await this.prisma.order.update({
+      where: { uuid: orderId },
+      data: { status: status['status'] },
+    });
+
+    return updatedOrder;
+  }
+
   async remove(id: string) {
     const order = await this.prisma.order.findFirst({
       where: { uuid: id },
