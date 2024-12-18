@@ -15,7 +15,7 @@ export class TaskSchedulerService {
   async sendSeedCollectionReminders() {
     const orders = await this.orderService.getOrdersForTomorrow();
     for (const order of orders) {
-      const message = `Hello ${order.user.first_name}, this is a reminder that your order will be ready for collection tomorrow.`;
+      const message = `Hello ${order.user.first_name}, this is a reminder that your order for ${order.seed.name}, ${order.quantity} ${order.quantity > 1 ? 'pieces' : 'piece'} will be ready for collection tomorrow.`;
       await this.smsService.sendMessage({ messsage: message });
     }
   }
