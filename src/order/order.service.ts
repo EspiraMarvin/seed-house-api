@@ -249,6 +249,7 @@ export class OrderService {
       },
       include: {
         user: true,
+        seed: true,
       },
     });
   }
