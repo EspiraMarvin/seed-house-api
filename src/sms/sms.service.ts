@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as AfricasTalking from 'africastalking';
 
 @Injectable()
 export class SmsService {
   constructor(private readonly configService: ConfigService) {}
+  private readonly logger = new Logger(SmsService.name);
 
   async formatDate(date) {
     //  dd/mm/yyyy format
@@ -50,11 +51,12 @@ export class SmsService {
       const result = await smsInstance.SMS.send({
         to: `${number}`,
         message: `${body.message}`,
-        from: `${this.configService.get<string>('AFRICASTALKING_SHORT_CODE')}`,
+        from: `${this.configService.get<string>('AFRICASTALKING_SENDER_ID')}`,
       });
+      this.logger.log(`sms sent- ${body.message} (${number})`);
       return result;
     } catch (ex) {
-      console.error(ex);
+      this.logger.error(`send sms error`, ex);
     }
   }
 }
