@@ -63,7 +63,7 @@ export class UsersService {
 
     // shortened url for https://seed-house.vercel.app -> http://bit.ly/4gz9YmB
     this.smsService.sendMessage({
-      message: `An Account has been setup for you, with ${randomPwd} as password, login to reset the password & start shopping our seeds catalogue.
+      message: `Hello ${newUser.first_name}, an account has been setup for you, with ${randomPwd} as your password, login & reset the password, and start shopping our seeds catalogue.
       http://bit.ly/4gz9YmB`,
       recipient: newUser.phone_number,
     });
