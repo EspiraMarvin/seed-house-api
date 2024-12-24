@@ -47,7 +47,8 @@ export class SmsService {
     // const timeStamp = formatDate(new Date());
     const smsInstance = AfricasTalking(credentials);
     try {
-      const number = await this.validateNumber(body.recipient);
+      // const number = await this.validateNumber(body.recipient);
+      const number = body.recipient;
       const result = await smsInstance.SMS.send({
         to: `${number}`,
         message: `${body.message}`,
